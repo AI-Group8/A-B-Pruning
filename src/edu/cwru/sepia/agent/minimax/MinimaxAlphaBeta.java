@@ -54,7 +54,7 @@ public class MinimaxAlphaBeta extends Agent {
 
     @Override
     public void loadPlayerData(InputStream is) {
-
+        
     }
 
     /**
@@ -74,9 +74,50 @@ public class MinimaxAlphaBeta extends Agent {
      */
     public GameStateChild alphaBetaSearch(GameStateChild node, int depth, double alpha, double beta)
     {
-        return node;
+        if(depth == 0 || node.state.isTerminal() == 0) return node.state.getUtility();
+        double currentAlpha = alpha, currentBeta = beta;
+        List<GameStateChild> orderedChildren = orderChildrenWithHeuristics(node.state.getChildren());
+        GameStateChild bestMove = orderedChildren.get(0);
+        double maxUlt = Double.NEGATIVE_INFINITY;
+        for (GameStateChild current: orderedChildren){
+            double backedUpValue = alphaBetaSearchMin(current, depth, currentAlpha, currentBeta);
+            if(backedUpValue>maxUlt){
+                bestMove = current;
+                maxUlt = backedUpValue;
+            }
+        }
+        return bestMove;
     }
-
+    public double alphaBetaSearchMax(GameStateChild node, int depth, double alpha, double beta){
+        if(depth == 0 || node.state.isTerminal() == 0) return node.state.getUtility();
+        double currentAlpha = alpha, currentBeta = beta;
+        double maxUlt = Double.NEGATIVE_INFINITY;
+        List<GameStateChild> orderedChildren = orderChildrenWithHeuristics(node.state.getChildren());
+        for (GameStateChild current: orderedChildren){
+            double backedUpValue = alphaBetaSearchMin(current, depth, currentAlpha, currentBeta);
+            if(backedUpValue>currentBeta)break;
+            if(backedUpValue>maxUlt){
+                currentAlpha = backedUpValue;
+                maxUlt = backedUpValue;
+            }
+        }
+        return maxUlt;
+    }
+    public double alphaBetaSearchMin(GameStateChild node, int depth, double alpha, double beta){
+        if(depth == 0 || node.state.isTerminal() == 0) return node.state.getUtility();
+        double currentAlpha = alpha, currentBeta = beta;
+        double minUlt = Double.POSITIVE_INFINITY;
+        List<GameStateChild> orderedChildren = orderChildrenWithHeuristics(node.state.getChildren());
+        for (GameStateChild current: orderedChildren){
+            double backedUpValue = alphaBetaSearchMax(current, depth-1, currentAlpha, currentBeta);
+            if(backedUpValue<currentAlpha)break;
+            if(backedUpValue<minUlt){
+                currentBeta = backedUpValue;
+                minUlt = backedUpValue;
+            }
+        }
+        return minUlt;
+    }
     /**
      * You will implement this.
      *
