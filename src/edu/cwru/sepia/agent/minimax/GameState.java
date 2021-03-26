@@ -20,6 +20,47 @@ import java.util.*;
  */
 public class GameState {
 
+     class SimUnit {
+        int ID;
+        int range;
+        int x;
+        int y;
+        int baseHP;
+        int HP;
+        int damage;
+
+        public SimUnit(Unit.UnitView unitView) {
+            ID = unitView.getID();
+            x = unitView.getXPosition();
+            y = unitView.getYPosition();
+            HP = unitView.getHP();
+
+            range = unitView.getTemplateView().getRange();
+            baseHP = unitView.getTemplateView().getBaseHealth();
+            damage = unitView.getTemplateView().getBasicAttack();
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            SimUnit simUnit = (SimUnit) o;
+            return ID == simUnit.ID;
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(ID);
+        }
+    }
+     
+    private State.StateView state;
+    private List<SimUnit> player0Units;
+    private List<SimUnit> player1Units;
+    private int xMax;
+    private int yMax;
+    private State.StateView state;
+     
     /**
      * You will implement this constructor. It will
      * extract all of the needed state information from the built in
@@ -55,6 +96,18 @@ public class GameState {
      * @param state Current state of the episode
      */
     public GameState(State.StateView state) {
+        this.state = state;
+
+        state.getUnits(0).forEach((unit) -> {
+            player0Units.add(new SimUnit(unit));
+        });
+
+        state.getUnits(1).forEach((unit) -> {
+            player1Units.add(new SimUnit(unit));
+        });
+
+        this.xMax = state.getXExtent();
+        this.yMax = state.getYExtent();
     }
 
     /**
@@ -76,7 +129,27 @@ public class GameState {
      * @return The weighted linear combination of the features
      */
     public double getUtility() {
-        return 0.0;
+        double utility = 0.0;
+        utility += 1000 * healthUtility();
+        utility += 1 * distanceUtility();
+        return utility;
+    }
+    
+    private double healthUtility() {
+        double health = 0.0;
+        for(SimUnit archer : player1Units) {
+            health -= (double)archer.HP/archer.baseHP;
+        }
+        for(SimUnit footman : player0Units) {
+            health += (double)footman.HP/footman.baseHP;
+        }
+        return health;
+    }
+    
+    private double distanceUtility() {}
+
+    private boolean isTerminated() {
+      return player0Units.size() == 0 || player1Units.size() == 0;
     }
 
     /**
