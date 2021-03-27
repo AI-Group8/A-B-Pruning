@@ -9,7 +9,6 @@ import edu.cwru.sepia.environment.model.state.Unit;
 import edu.cwru.sepia.util.Direction;
 
 import java.util.*;
-
 /**
  * This class stores all of the information the agent
  * needs to know about the state of the game. For example this
@@ -138,7 +137,7 @@ public class GameState {
     private double healthUtility() {
         double utility = 0.0;
         double totalArchersHealth = 0.0;
-        double totalFootmenHealth 0.0;
+        double totalFootmenHealth = 0.0;
         for(SimUnit archer : player1Units) {
             totalArchersHealth += (double)archer.HP;
         }
@@ -154,12 +153,29 @@ public class GameState {
         return utility;
     }
     
-    private double distanceUtility() {}
-
-    private boolean isTerminated() {
-      return player0Units.size() == 0 || player1Units.size() == 0;
+    private double distanceUtility() {
+        double utility = 0.0;
+        for(SimUnit footman : player0Units) {
+            for(SimUnit archer : player1Units) {
+                distance = Math.sqrt(Math.pow(footman.x - archer.x, 2) + Math.pow(footman.y - archer.y, 2));
+            }
+            utility -= distance;
+        }
+        return utility;
     }
 
+    // return true if all the footmen or archers die
+    private boolean isTerminated() {
+        double totalArchersHealth = 0.0;
+        double totalFootmenHealth 0.0;
+        for(SimUnit archer : player1Units) {
+            totalArchersHealth += (double)archer.HP;
+        }
+        for(SimUnit footman : player0Units) {
+            totalFootmenHealth += (double)footman.HP;
+        }
+        return totalArchersHealth <= 0.0 || totalFootmenHealth <= 0.0;
+    }
     /**
      * You will implement this function.
      *
@@ -202,3 +218,4 @@ public class GameState {
         return null;
     }
 }
+
