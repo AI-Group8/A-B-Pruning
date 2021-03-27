@@ -136,14 +136,22 @@ public class GameState {
     }
     
     private double healthUtility() {
-        double health = 0.0;
+        double utility = 0.0;
+        double totalArchersHealth = 0.0;
+        double totalFootmenHealth 0.0;
         for(SimUnit archer : player1Units) {
-            health -= (double)archer.HP/archer.baseHP;
+            totalArchersHealth += (double)archer.HP;
         }
         for(SimUnit footman : player0Units) {
-            health += (double)footman.HP/footman.baseHP;
+            totalFootmenHealth += (double)footman.HP;
         }
-        return health;
+        if (totalArchersHealth == 0) { 
+          utility = Double.POSITIVE_INFINITY;
+        }
+        else {
+          utility = totalFootmenHealth / totalArchersHealth;
+        }
+        return utility;
     }
     
     private double distanceUtility() {}
